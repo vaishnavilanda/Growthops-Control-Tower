@@ -1,0 +1,32 @@
+[
+  {
+    "campaign_id": "camp_001",
+    "name": "Q3 LinkedIn ABM - EMEA",
+    "objective": "MQL generation",
+    "channel": "LinkedIn Ads",
+    "links": [
+      "https://example.com/broken-landing-page-404"
+    ],
+    "utms": {
+      "utm_source": "",
+      "utm_medium": "cpc",
+      "utm_campaign": ""
+    },
+    "has_unsubscribe_link": false
+  },
+  {
+    "campaign_id": "camp_002",
+    "name": "Spring Product Launch",
+    "objective": "Lead Generation",
+    "channel": "Email Nurture",
+    "links": [
+      "https://example.com/landing"
+    ],
+    "utms": {
+      "utm_source": "newsletter",
+      "utm_medium": "email",
+      "utm_campaign": "spring_launch"
+    },
+    "has_unsubscribe_link": true
+  }
+]
