@@ -1,0 +1,522 @@
+{
+  "name": "GrowthOps Control Tower",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "8dcfd11e-f54e-4585-82f4-b31f55558160",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        -128
+      ],
+      "id": "79bb3a32-95d7-4181-b432-bad9e78fd2d3",
+      "name": "Webhook",
+      "webhookId": "8dcfd11e-f54e-4585-82f4-b31f55558160"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.module_target }}",
+                    "rightValue": "PRE_LAUNCH_QA",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "fa186d18-b6ab-445d-b13a-4fa962e3a914"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5f6126fe-4608-4695-88e2-930a5b9cfa36",
+                    "leftValue": "={{ $json.body.module_target }}",
+                    "rightValue": "CONSENT_AUDIT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "087c1e5e-4a0b-43e6-9faf-3efc37a03016",
+                    "leftValue": "={{ $json.body.module_target }}",
+                    "rightValue": "PERF_MONITOR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "2123424e-b31b-4f88-8b25-245c1270dd52",
+                    "leftValue": "={{ $json.body.module_target }}",
+                    "rightValue": "EXPERIMENT_MEMORY",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ce0063a2-b643-4694-b863-1799b7bc2c45",
+                    "leftValue": "={{ $json.body.module_target }}",
+                    "rightValue": "DOC_GENERATOR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        128,
+        -80
+      ],
+      "id": "2717d05e-59c7-4408-a616-7be3ad0695ec",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-sonnet-5",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-5"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an elite GrowthOps QA Inspector. Audit the incoming campaign details for critical errors, GDPR compliance issues, missing UTMs, and segment risks.\n\nEvaluation Rules:\n1. Compliance: 'has_unsubscribe_link' MUST be true. If false, flag as CRITICAL.\n2. Audience: Flag any 'audience_segment' that targets unsubscribed or opt-out lists as CRITICAL.\n3. UTMs: Check if 'landing_page_url' contains valid UTM parameters.\n\nReturn strictly valid JSON with no markdown block wrappers:\n{\n  \"qa_status\": \"FAILED\",\n  \"severity\": \"CRITICAL\",\n  \"flagged_issues\": [\"Missing unsubscribe link\", \"Targeting unsubscribed contacts\"],\n  \"actionable_fix\": \"Add footer unsubscribe link and remove unsubscribed contacts from audience segment.\"\n}"
+            },
+            {
+              "content": "=Audit this campaign payload:\n{{ JSON.stringify($json.body.campaign_details) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -240
+      ],
+      "id": "b94f9ce9-2688-4c6f-97a8-c9a90646cb0c",
+      "name": "Message a model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "DYhiguu7wb36hWFu",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract text output from Claude\nconst contentArr = $json.content;\nconst textBlock = contentArr.find(c => c.type === 'text') || contentArr[0];\nlet rawText = textBlock.text;\n\n// Clean markdown wrappers and parse JSON\nrawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();\nconst parsed = JSON.parse(rawText);\n\n// Extract original campaign info from the Switch node\nconst campaign = $('Switch').item.json.body.campaign_details;\n\nreturn {\n  json: {\n    campaignId: campaign.campaign_id,\n    campaignName: campaign.campaign_name,\n    qaStatus: parsed.qa_status,\n    severity: parsed.severity,\n    flaggedIssues: parsed.flagged_issues.join(\" | \"),\n    actionableFix: parsed.actionable_fix\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        -256
+      ],
+      "id": "22152eb7-1a58-4f2e-97a2-6d832e1cf84e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "landavaishnavi6@gmail.com",
+        "subject": "= GrowthOps QA Alert: [{{ $json.severity }}] {{ $json.campaignName }} ({{ $json.qaStatus }})",
+        "emailType": "text",
+        "message": "=GrowthOps Control Tower - Pre-Launch QA Alert  A campaign submission has failed QA automated checks and requires immediate action.  -------------------------------------------------- CAMPAIGN SUMMARY -------------------------------------------------- • Campaign ID:   {{ $json.campaignId }} • Campaign Name: {{ $json.campaignName }} • QA Status:     {{ $json.qaStatus }} • Severity:      {{ $json.severity }}  -------------------------------------------------- FLAGGED ISSUES -------------------------------------------------- {{ $json.flaggedIssues }}  -------------------------------------------------- ACTIONABLE FIX REQUIRED -------------------------------------------------- {{ $json.actionableFix }}  -------------------------------------------------- GrowthOps Control Tower Engine",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        -80
+      ],
+      "id": "0551c1e5-d051-4ca3-92aa-c064e6f0371d",
+      "name": "Send a message",
+      "webhookId": "8ed83955-676f-4272-8f68-b006facee428",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "r5VAoK7wP9zFyNiO",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Extract campaign payload from Switch node\nconst data = $('Switch').item.json.body.campaign_details;\n\n// Audit logic for consent and suppression\nlet hasViolation = false;\nlet violationReason = \"\";\n\nif (data.consent_status === \"opted_out\") {\n  hasViolation = true;\n  violationReason = \"Contact has opted out but is targeted for a campaign.\";\n} else if (data.target_region === \"EU\" && data.consent_status !== \"explicit_opt_in\") {\n  hasViolation = true;\n  violationReason = \"EU GDPR violation: Contact lacks explicit opt-in consent.\";\n} else {\n  violationReason = \"Passed consent audit.\";\n}\n\nreturn {\n  json: {\n    campaignId: data.campaign_id,\n    contactEmail: data.contact_email,\n    targetRegion: data.target_region,\n    consentStatus: data.consent_status,\n    isSuppressedViolation: hasViolation,\n    reason: violationReason\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -112
+      ],
+      "id": "99f94e64-7a2a-47e2-ae8d-13fc37894d10",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5785a2a8-aaec-4bfc-b7da-2363406aedb8",
+              "leftValue": "={{ $json.isSuppressedViolation }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        944,
+        -80
+      ],
+      "id": "c7cdc759-8505-4133-a4ab-6208614029ad",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const metrics = $json.body.metrics;\nconst currentCTR = metrics.clicks / metrics.emails_sent;\nconst isUnderperforming = currentCTR < metrics.target_ctr;\n\nreturn {\n  json: {\n    campaignId: metrics.campaign_id,\n    currentCTR: (currentCTR * 100).toFixed(2) + \"%\",\n    targetCTR: (metrics.target_ctr * 100) + \"%\",\n    isAnomaly: isUnderperforming,\n    message: isUnderperforming ? \"🚨 Alert: Low CTR detected!\" : \"Performance Normal.\"\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        32
+      ],
+      "id": "989df5a6-1428-4f29-9449-f4e2aed872aa",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c363cc21-c017-499b-a1ca-98d29c1abb71",
+              "leftValue": "={{ $json.isAnomaly }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        960,
+        64
+      ],
+      "id": "7131f39c-7958-4841-af28-86697c378ab8",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const exp = $json.body.experiment_data;\n\nreturn {\n  json: {\n    campaignId: exp.campaign_id,\n    testName: exp.test_name,\n    winningVariant: exp.winning_variant,\n    performanceLift: exp.lift_percentage,\n    coreLearning: exp.key_learning,\n    loggedAt: new Date().toISOString(),\n    status: \"SAVED_TO_MEMORY\"\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        224
+      ],
+      "id": "1e8b5599-dadf-4010-abc1-4eff49f0f7fe",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const report = $json.body.campaign_report;\n\nreturn {\n  json: {\n    reportString: JSON.stringify(report, null, 2),\n    campaignId: report.campaign_id,\n    campaignName: report.campaign_name\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        144
+      ],
+      "id": "76f24f28-c472-44e5-adb1-4afa7c004362",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-sonnet-5",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-5"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert GrowthOps Document Specialist. Generate a clean, executive-ready post-campaign summary report based on the provided metrics. Use clear markdown headings, bullet points, and an enthusiastic professional tone.\n\nDraft an executive summary document for this campaign data:\n{{ $json.reportString }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        688,
+        384
+      ],
+      "id": "4149345d-0a4f-4d1b-97e6-fefea288071d",
+      "name": "Message a model1",
+      "credentials": {
+        "anthropicApi": {
+          "id": "DYhiguu7wb36hWFu",
+          "name": "Anthropic account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "fc5abb2e-4b9b-49df-a660-015457a209a4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b420a4fc31b58299362946b88ec19ad411f1c7a0998703301e2bceb2c40ae6cc"
+  },
+  "nodeGroups": [],
+  "id": "bnRwwqUIcmdQ4uGk",
+  "tags": []
+}

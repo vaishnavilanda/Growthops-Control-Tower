@@ -1,0 +1,38 @@
+[
+  {
+    "contact_id": "cnt_101",
+    "email": "unsubscribed.user@example.com",
+    "target_region": "US",
+    "consent_status": "opted_out",
+    "is_on_suppression_list": false,
+    "active_campaign_enrollment": true,
+    "expected_audit_result": "Violation: Contact has opted out but is targeted for a campaign."
+  },
+  {
+    "contact_id": "cnt_102",
+    "email": "eu.lead@germany-biz.de",
+    "target_region": "EU",
+    "consent_status": "implicit_cookie_only",
+    "is_on_suppression_list": false,
+    "active_campaign_enrollment": true,
+    "expected_audit_result": "Violation: EU GDPR violation - Contact lacks explicit opt-in consent."
+  },
+  {
+    "contact_id": "cnt_103",
+    "email": "competitor.spy@rivalfirm.com",
+    "target_region": "US",
+    "consent_status": "explicit_opt_in",
+    "is_on_suppression_list": true,
+    "active_campaign_enrollment": true,
+    "expected_audit_result": "Violation: Contact is on an active suppression list."
+  },
+  {
+    "contact_id": "cnt_104",
+    "email": "sarah.connor@cyberdyne.io",
+    "target_region": "US",
+    "consent_status": "explicit_opt_in",
+    "is_on_suppression_list": false,
+    "active_campaign_enrollment": false,
+    "expected_audit_result": "Passed consent audit."
+  }
+]
